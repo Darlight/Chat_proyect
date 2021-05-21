@@ -46,14 +46,17 @@ struct TableStruct {
 };
 void AddDescriptors();
 }  // namespace protobuf_payload_2eproto
+namespace chat {
 class Payload;
 class PayloadDefaultTypeInternal;
 extern PayloadDefaultTypeInternal _Payload_default_instance_;
+}  // namespace chat
 namespace google {
 namespace protobuf {
-template<> ::Payload* Arena::CreateMaybeMessage<::Payload>(Arena*);
+template<> ::chat::Payload* Arena::CreateMaybeMessage<::chat::Payload>(Arena*);
 }  // namespace protobuf
 }  // namespace google
+namespace chat {
 
 enum Payload_PayloadFlag {
   Payload_PayloadFlag_general_chat = 0,
@@ -80,7 +83,7 @@ inline bool Payload_PayloadFlag_Parse(
 }
 // ===================================================================
 
-class Payload : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:Payload) */ {
+class Payload : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:chat.Payload) */ {
  public:
   Payload();
   virtual ~Payload();
@@ -268,12 +271,12 @@ class Payload : public ::google::protobuf::Message /* @@protoc_insertion_point(c
   ::std::string* release_extra();
   void set_allocated_extra(::std::string* extra);
 
-  // optional .Payload.PayloadFlag flag = 4;
+  // optional .chat.Payload.PayloadFlag flag = 4;
   bool has_flag() const;
   void clear_flag();
   static const int kFlagFieldNumber = 4;
-  ::Payload_PayloadFlag flag() const;
-  void set_flag(::Payload_PayloadFlag value);
+  ::chat::Payload_PayloadFlag flag() const;
+  void set_flag(::chat::Payload_PayloadFlag value);
 
   // optional int32 code = 6;
   bool has_code() const;
@@ -282,7 +285,7 @@ class Payload : public ::google::protobuf::Message /* @@protoc_insertion_point(c
   ::google::protobuf::int32 code() const;
   void set_code(::google::protobuf::int32 value);
 
-  // @@protoc_insertion_point(class_scope:Payload)
+  // @@protoc_insertion_point(class_scope:chat.Payload)
  private:
   void set_has_sender();
   void clear_has_sender();
@@ -334,41 +337,41 @@ inline void Payload::clear_sender() {
   clear_has_sender();
 }
 inline const ::std::string& Payload::sender() const {
-  // @@protoc_insertion_point(field_get:Payload.sender)
+  // @@protoc_insertion_point(field_get:chat.Payload.sender)
   return sender_.GetNoArena();
 }
 inline void Payload::set_sender(const ::std::string& value) {
   set_has_sender();
   sender_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:Payload.sender)
+  // @@protoc_insertion_point(field_set:chat.Payload.sender)
 }
 #if LANG_CXX11
 inline void Payload::set_sender(::std::string&& value) {
   set_has_sender();
   sender_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Payload.sender)
+  // @@protoc_insertion_point(field_set_rvalue:chat.Payload.sender)
 }
 #endif
 inline void Payload::set_sender(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   set_has_sender();
   sender_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Payload.sender)
+  // @@protoc_insertion_point(field_set_char:chat.Payload.sender)
 }
 inline void Payload::set_sender(const char* value, size_t size) {
   set_has_sender();
   sender_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Payload.sender)
+  // @@protoc_insertion_point(field_set_pointer:chat.Payload.sender)
 }
 inline ::std::string* Payload::mutable_sender() {
   set_has_sender();
-  // @@protoc_insertion_point(field_mutable:Payload.sender)
+  // @@protoc_insertion_point(field_mutable:chat.Payload.sender)
   return sender_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Payload::release_sender() {
-  // @@protoc_insertion_point(field_release:Payload.sender)
+  // @@protoc_insertion_point(field_release:chat.Payload.sender)
   if (!has_sender()) {
     return NULL;
   }
@@ -382,7 +385,7 @@ inline void Payload::set_allocated_sender(::std::string* sender) {
     clear_has_sender();
   }
   sender_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), sender);
-  // @@protoc_insertion_point(field_set_allocated:Payload.sender)
+  // @@protoc_insertion_point(field_set_allocated:chat.Payload.sender)
 }
 
 // optional string ip = 2;
@@ -400,41 +403,41 @@ inline void Payload::clear_ip() {
   clear_has_ip();
 }
 inline const ::std::string& Payload::ip() const {
-  // @@protoc_insertion_point(field_get:Payload.ip)
+  // @@protoc_insertion_point(field_get:chat.Payload.ip)
   return ip_.GetNoArena();
 }
 inline void Payload::set_ip(const ::std::string& value) {
   set_has_ip();
   ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:Payload.ip)
+  // @@protoc_insertion_point(field_set:chat.Payload.ip)
 }
 #if LANG_CXX11
 inline void Payload::set_ip(::std::string&& value) {
   set_has_ip();
   ip_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Payload.ip)
+  // @@protoc_insertion_point(field_set_rvalue:chat.Payload.ip)
 }
 #endif
 inline void Payload::set_ip(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   set_has_ip();
   ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Payload.ip)
+  // @@protoc_insertion_point(field_set_char:chat.Payload.ip)
 }
 inline void Payload::set_ip(const char* value, size_t size) {
   set_has_ip();
   ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Payload.ip)
+  // @@protoc_insertion_point(field_set_pointer:chat.Payload.ip)
 }
 inline ::std::string* Payload::mutable_ip() {
   set_has_ip();
-  // @@protoc_insertion_point(field_mutable:Payload.ip)
+  // @@protoc_insertion_point(field_mutable:chat.Payload.ip)
   return ip_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Payload::release_ip() {
-  // @@protoc_insertion_point(field_release:Payload.ip)
+  // @@protoc_insertion_point(field_release:chat.Payload.ip)
   if (!has_ip()) {
     return NULL;
   }
@@ -448,7 +451,7 @@ inline void Payload::set_allocated_ip(::std::string* ip) {
     clear_has_ip();
   }
   ip_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ip);
-  // @@protoc_insertion_point(field_set_allocated:Payload.ip)
+  // @@protoc_insertion_point(field_set_allocated:chat.Payload.ip)
 }
 
 // optional string message = 3;
@@ -466,41 +469,41 @@ inline void Payload::clear_message() {
   clear_has_message();
 }
 inline const ::std::string& Payload::message() const {
-  // @@protoc_insertion_point(field_get:Payload.message)
+  // @@protoc_insertion_point(field_get:chat.Payload.message)
   return message_.GetNoArena();
 }
 inline void Payload::set_message(const ::std::string& value) {
   set_has_message();
   message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:Payload.message)
+  // @@protoc_insertion_point(field_set:chat.Payload.message)
 }
 #if LANG_CXX11
 inline void Payload::set_message(::std::string&& value) {
   set_has_message();
   message_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Payload.message)
+  // @@protoc_insertion_point(field_set_rvalue:chat.Payload.message)
 }
 #endif
 inline void Payload::set_message(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   set_has_message();
   message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Payload.message)
+  // @@protoc_insertion_point(field_set_char:chat.Payload.message)
 }
 inline void Payload::set_message(const char* value, size_t size) {
   set_has_message();
   message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Payload.message)
+  // @@protoc_insertion_point(field_set_pointer:chat.Payload.message)
 }
 inline ::std::string* Payload::mutable_message() {
   set_has_message();
-  // @@protoc_insertion_point(field_mutable:Payload.message)
+  // @@protoc_insertion_point(field_mutable:chat.Payload.message)
   return message_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Payload::release_message() {
-  // @@protoc_insertion_point(field_release:Payload.message)
+  // @@protoc_insertion_point(field_release:chat.Payload.message)
   if (!has_message()) {
     return NULL;
   }
@@ -514,10 +517,10 @@ inline void Payload::set_allocated_message(::std::string* message) {
     clear_has_message();
   }
   message_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), message);
-  // @@protoc_insertion_point(field_set_allocated:Payload.message)
+  // @@protoc_insertion_point(field_set_allocated:chat.Payload.message)
 }
 
-// optional .Payload.PayloadFlag flag = 4;
+// optional .chat.Payload.PayloadFlag flag = 4;
 inline bool Payload::has_flag() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -531,15 +534,15 @@ inline void Payload::clear_flag() {
   flag_ = 0;
   clear_has_flag();
 }
-inline ::Payload_PayloadFlag Payload::flag() const {
-  // @@protoc_insertion_point(field_get:Payload.flag)
-  return static_cast< ::Payload_PayloadFlag >(flag_);
+inline ::chat::Payload_PayloadFlag Payload::flag() const {
+  // @@protoc_insertion_point(field_get:chat.Payload.flag)
+  return static_cast< ::chat::Payload_PayloadFlag >(flag_);
 }
-inline void Payload::set_flag(::Payload_PayloadFlag value) {
-  assert(::Payload_PayloadFlag_IsValid(value));
+inline void Payload::set_flag(::chat::Payload_PayloadFlag value) {
+  assert(::chat::Payload_PayloadFlag_IsValid(value));
   set_has_flag();
   flag_ = value;
-  // @@protoc_insertion_point(field_set:Payload.flag)
+  // @@protoc_insertion_point(field_set:chat.Payload.flag)
 }
 
 // optional string extra = 5;
@@ -557,41 +560,41 @@ inline void Payload::clear_extra() {
   clear_has_extra();
 }
 inline const ::std::string& Payload::extra() const {
-  // @@protoc_insertion_point(field_get:Payload.extra)
+  // @@protoc_insertion_point(field_get:chat.Payload.extra)
   return extra_.GetNoArena();
 }
 inline void Payload::set_extra(const ::std::string& value) {
   set_has_extra();
   extra_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:Payload.extra)
+  // @@protoc_insertion_point(field_set:chat.Payload.extra)
 }
 #if LANG_CXX11
 inline void Payload::set_extra(::std::string&& value) {
   set_has_extra();
   extra_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:Payload.extra)
+  // @@protoc_insertion_point(field_set_rvalue:chat.Payload.extra)
 }
 #endif
 inline void Payload::set_extra(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   set_has_extra();
   extra_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:Payload.extra)
+  // @@protoc_insertion_point(field_set_char:chat.Payload.extra)
 }
 inline void Payload::set_extra(const char* value, size_t size) {
   set_has_extra();
   extra_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:Payload.extra)
+  // @@protoc_insertion_point(field_set_pointer:chat.Payload.extra)
 }
 inline ::std::string* Payload::mutable_extra() {
   set_has_extra();
-  // @@protoc_insertion_point(field_mutable:Payload.extra)
+  // @@protoc_insertion_point(field_mutable:chat.Payload.extra)
   return extra_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* Payload::release_extra() {
-  // @@protoc_insertion_point(field_release:Payload.extra)
+  // @@protoc_insertion_point(field_release:chat.Payload.extra)
   if (!has_extra()) {
     return NULL;
   }
@@ -605,7 +608,7 @@ inline void Payload::set_allocated_extra(::std::string* extra) {
     clear_has_extra();
   }
   extra_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), extra);
-  // @@protoc_insertion_point(field_set_allocated:Payload.extra)
+  // @@protoc_insertion_point(field_set_allocated:chat.Payload.extra)
 }
 
 // optional int32 code = 6;
@@ -623,13 +626,13 @@ inline void Payload::clear_code() {
   clear_has_code();
 }
 inline ::google::protobuf::int32 Payload::code() const {
-  // @@protoc_insertion_point(field_get:Payload.code)
+  // @@protoc_insertion_point(field_get:chat.Payload.code)
   return code_;
 }
 inline void Payload::set_code(::google::protobuf::int32 value) {
   set_has_code();
   code_ = value;
-  // @@protoc_insertion_point(field_set:Payload.code)
+  // @@protoc_insertion_point(field_set:chat.Payload.code)
 }
 
 #ifdef __GNUC__
@@ -638,14 +641,15 @@ inline void Payload::set_code(::google::protobuf::int32 value) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace chat
 
 namespace google {
 namespace protobuf {
 
-template <> struct is_proto_enum< ::Payload_PayloadFlag> : ::std::true_type {};
+template <> struct is_proto_enum< ::chat::Payload_PayloadFlag> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::Payload_PayloadFlag>() {
-  return ::Payload_PayloadFlag_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::chat::Payload_PayloadFlag>() {
+  return ::chat::Payload_PayloadFlag_descriptor();
 }
 
 }  // namespace protobuf

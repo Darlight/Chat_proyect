@@ -1,5 +1,5 @@
 syntax = "proto2";
-
+package chat;
 // Flag ya solo puede tener los valores definidos dentro del enum y no otros
 // como seria en un string
 // SIGNIFICADO de los enum values
@@ -33,6 +33,7 @@ syntax = "proto2";
 // Con este modelo tenes la facilidad de repetir siempre el llenar sender, ip y
 // flag y con eso Ya podes manejar incluso varios escenarios sin tener que tocar
 // mas el modelo y solo cuando es necesario complementas
+
 message Payload {
   optional string sender = 1;
   // Agregas tu ip para saber que siempre estas mandando los mensajes de un
