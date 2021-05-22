@@ -3,11 +3,9 @@
 Universidad del Valle de Guatemala
 Sistemas operativos
 Ing. Erick Pineda
-
 Esteban del Valle 18221
 Andrea Paniagua 18733
 Mario Perdomo  18029
-
 client.c
 Proposito: clientes que se unen al servidor, con opciones de interacciones entre otros clientes
 */
@@ -49,12 +47,11 @@ void *get_server_address(struct sockaddr *sa)
 	return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
-// Funcion de threads, su objetivo es siempre estar escuchando respuestas del servidor
+// listen to server
 void *listenToMessages(void *args)
 {
 	while (1)
 	{
-		// Estructura del mensaje
 		char bufferMsg[BUFFER_SZ];
 		int *sockmsg = (int *)args;
 		chat::Payload serverMsg;
@@ -63,26 +60,24 @@ void *listenToMessages(void *args)
 
 		serverMsg.ParseFromString(bufferMsg);
 
-		// Mensaje con codigo de error
+		//Error
 		if (serverMsg.code() == 500)
 		{
-			printf("________________________________________________________\n");
+			printf("\n");
 			std::cout << "Error: "
 			  << serverMsg.message()
 			  << std::endl;
 		}
-		// Respuesta correcta del servidor
 		else if (serverMsg.code() == 200 || serverMsg.flag() == chat::Payload_PayloadFlag_general_chat)
 		{
-			printf("________________________________________________________\n");
-			std::cout << "Respuesta del servidor: \n"
+			printf("\n");
+			std::cout << "server answers: \n"
 			  << serverMsg.message()
 			  << std::endl;
 		}
-		// En el posible caso que el servidor mande una respuesta no reconocida
 		else
 		{
-			printf("El servidor no esta disponible, intentelo mas tarde\n");
+			printf("server does not recognize the answer\n");
 			break;
 		}
 
@@ -96,19 +91,17 @@ void *listenToMessages(void *args)
 }
 void print_menu(char *nameCLient)
 {
-	printf("|--------------------------------------------------------| \n");
-	printf("Welcome to the Chatroom, %s! \n\n", nameCLient);
-	printf("1. Check the list of the users online. \n");
-	printf("2. Information specific of a user \n");
-	printf("3. Change Status.  \n");
-	printf("4. Global message in the entire Chatroom. \n");
-	printf("5. Send private message to one user. \n");
+	printf("\n");
+	printf("Welcome to Chatroom, %s! \n\n", nameCLient);
+	printf("1. List of users online. \n");
+	printf("2. Specific information from an user \n");
+	printf("3. Change Status\n");
+	printf("4. Global message\n");
+	printf("5. Private message to an user\n");
 	printf("6. Exit. \n");
-	printf("|--------------------------------------------------------| \n");
+	printf("\n");
 }
 
-
-// Obtener opcion elegida por el cliente
 int get_client_option()
 {
 	// Client options
@@ -117,7 +110,7 @@ int get_client_option()
 
 	while (std::cin.fail())
 	{
-		std::cout << "Por favor, ingrese una opcion valida: " << std::endl;
+		std::cout << "Select a valid option: " << std::endl;
 		std::cin.clear();
 		std::cin.ignore(256, '\n');
 		std::cin >> client_opt;
@@ -125,10 +118,9 @@ int get_client_option()
 
 	return client_opt;
 }
-
 int main(int argc, char *argv[])
 {
-	// Estructura de la coneccion
+	// Connection Structure
 	int sockfd, numbytes;
 	char buf[BUFFER_SZ];
 	struct addrinfo hints, *servinfo, *p;
@@ -137,7 +129,7 @@ int main(int argc, char *argv[])
 
 	if (argc != 4)
 	{
-		fprintf(stderr, "Use of Registration: client <username> <server_ip> <server_port>\n\n Please, try again... \n");
+		fprintf(stderr, "Registration: client <username> <server_ip> <server_port>\n\n Try again... \n");
 		exit(1);
 	}
 
@@ -151,7 +143,6 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	// Conectarse a la opcion que este disponible
 	for (p = servinfo; p != NULL; p = p->ai_next)
 	{
 		if ((sockfd = socket(p->ai_family, p->ai_socktype,
@@ -163,28 +154,28 @@ int main(int argc, char *argv[])
 
 		if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1)
 		{
-			perror("client: connect");
+			perror("client: connection");
 			close(sockfd);
 			continue;
 		}
 
 		break;
 	}
-	// Indicar fallo al conectarse
+	//conecction error
 	if (p == NULL)
 	{
-		fprintf(stderr, "failed to connect\n");
+		fprintf(stderr, "Connection Failed\n");
 		return 2;
 	}
 
-	//Completar la coneccion
+	//Finish Connection
 	inet_ntop(p->ai_family, get_server_address((struct sockaddr *)p->ai_addr),
 			  s, sizeof s);
-	printf("Conectado con %s\n", s);
+	printf("Connected to %s\n", s);
 	freeaddrinfo(servinfo);
 
 
-	// Escribir el mensaje de registro
+	// REgustration Message
 	char buffer[BUFFER_SZ];
 	std::string message_serialized;
 
@@ -199,28 +190,26 @@ int main(int argc, char *argv[])
 	strcpy(buffer, message_serialized.c_str());
 	send(sockfd, buffer, message_serialized.size() + 1, 0);
 
-	// Obtener response de servidor
+	// Server Answer
 	recv(sockfd, buffer, BUFFER_SZ, 0);
 
 	chat::Payload serverMessage;
 	serverMessage.ParseFromString(buffer);
 
-	// En caso de registro no exitoso
+	// If the register is incorrect
 	if(serverMessage.code() == 500){
 			std::cout << "Error: "
 			  << serverMessage.message()
 			  << std::endl;
 			return 0;
 	}
-
-	// En caso de registro exitoso
-	std::cout << "El servidor dice: "
+	std::cout << "Server answers: "
 			  << serverMessage.message()
 			  << std::endl;	
 
 	online = 1;
 
-	// despachar thread que escucha mensajes del server
+	// end listener thread
 	pthread_t thread_id;
 	pthread_attr_t attrs;
 	pthread_attr_init(&attrs);
@@ -228,20 +217,17 @@ int main(int argc, char *argv[])
 
 	print_menu(argv[1]);
 	int client_opt;
-
-	// Loop para seguir preguntando opciones 
 	while (true)
 	{
-		// Mantener un orden entre lo que se envia y se recibe
 		while (serverResponse == 1){}
 
-		printf("\nEscoja la opcion que desea:\n");
+		printf("\nChoose an option:\n");
 		client_opt = get_client_option();
 
 		std::string msgSerialized;
 		int bytesReceived, bytesSent;
 
-		// Lista de usuarios conectados
+		// Connected Users
 		if (client_opt == 1)
 		{
 			chat::Payload *userList = new chat::Payload();
@@ -255,11 +241,11 @@ int main(int argc, char *argv[])
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);
 			serverResponse = 1;
 		}
-		// Informacion de un usuario en especifico
+		// Information of an specific user
 		else if (client_opt == 2)
 		{
 			std::string user_name;
-			printf("Ingrese el nombre del usuario que quiere consultar: \n");
+			printf("Write the user name: \n");
 			std::cin >> user_name;
 
 			chat::Payload *userInf = new chat::Payload();
@@ -274,12 +260,12 @@ int main(int argc, char *argv[])
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);
 			serverResponse = 1;
 		}
-		// Cambiar estatus
+		// Change Status
 		else if(client_opt == 3){
-			printf("Ingrese su nuevo estado: \n");
-			printf("1. ACTIVO\n");
-			printf("2. OCUPADO\n");
-			printf("3. INACTIVO\n");
+			printf("New State: \n");
+			printf("1. ACTIVE\n");
+			printf("2. BUSY\n");
+			printf("3. INACTIVE\n");
 			int option;
 			std::cin >> option;
 			std::string newStatus;
@@ -288,7 +274,7 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				printf("Estado invalido.\n");
+				printf("Not Valid.\n");
 				continue;
 			}
 			chat::Payload *userInf = new chat::Payload();
@@ -303,11 +289,11 @@ int main(int argc, char *argv[])
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);
 			serverResponse = 1;
 		}
-		// Enviar mensaje general
+		// Global Message
 		else if (client_opt == 4)
 		{
 			inputMessage = 1;
-			printf("Ingrese un mensaje a enviar: \n");
+			printf("Global Message: \n");
 			std::cin.ignore();
 			std::string msg;
 			std::getline(std::cin, msg);
@@ -327,15 +313,15 @@ int main(int argc, char *argv[])
 			inputMessage = 0;
 		}
 
-		// Enviar Mensaje privado
+		// Send DM
 		else if (client_opt == 5)
 		{
-			printf("Ingrese el nombre de usuario al que quiere enviarle un mensaje: \n");
+			printf("Destination User Name: \n");
 			std::cin.ignore();
 			std::string user_name;
 			std::getline(std::cin, user_name);
 
-			printf("Ingrese un mensaje a enviar: \n");
+			printf("Message: \n");
 			std::string msg;
 			std::getline(std::cin, msg);
 
@@ -356,27 +342,27 @@ int main(int argc, char *argv[])
 		else if (client_opt == 6)
 		{
 			int option;
-			printf("Cerrar sesion? \n");
-			printf("1. Si \n");
-			printf("2. No \n");
+			printf("What you want to do? \n");
+			printf("1. Exit \n");
+			printf("2. Stay \n");
 
 			std::cin >> option;
 
 			if (option == 1)
 			{
-				printf("Hasta la proxima!\n");
+				printf("Disconnected!\n");
 				break;
 			}
 		}
 		else
 		{
-			std::cout << "Esa no es una opcion valida" << std::endl;
+			std::cout << "Not Valid" << std::endl;
 		}
 		
 		
 	}
 
-	// cerrar conexion
+	//Close
 	pthread_cancel(thread_id);
 	online = 0;
 	close(sockfd);
