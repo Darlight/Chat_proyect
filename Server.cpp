@@ -46,7 +46,7 @@ struct ChatClient
 
 
 // All new clients
-std::unordered_map<std::string, ChatClient *> newClient;
+std::unordered_map<std::string, ChatClient *> clients_entering;
 
 //Check Errors for network 
 void errorMess(int socketFd, std::string messageError)
@@ -73,7 +73,7 @@ void *ThreadWork(void *parameters)
     int socketFd = clientParameters->socketFd;
     char buffer[BUFFER_SZ];
     std::string messageSerialized;
-    chat::Payload messageReceived ;
+    chat::Payload messageReceived;
     while (1)
     {
         // Checks user reaction, if failed to responde then server will finish user's sessions
@@ -90,7 +90,7 @@ void *ThreadWork(void *parameters)
         if (messageReceived.flag() == chat::Payload_PayloadFlag_register_) // Flag
         {
             std::cout << "Server: information found about: "<< messageReceived.sender()<< std::endl;
-            if (newClient.count(messageReceived.sender()) > 0) //Check if there is an username, elsewhere error 
+            if (clients_entering.count(messageReceived.sender()) > 0) //Check if there is an username, elsewhere error 
             {
                 std::cout << "server: username already exists." << std::endl;
                 errorMess(socketFd, "Try another username.");
@@ -113,17 +113,17 @@ void *ThreadWork(void *parameters)
             newClient.socketFd = socketFd;
             newClient.status = "active";
             strcpy(newClient.ipAddr, clientParameters->ipAddr);
-            newClient[newClient.userName] = &newClient;
+            clients_entering[newClient.userName] = &newClient;
         }
         else if (messageReceived.flag() == chat::Payload_PayloadFlag_user_list) //List of all clientes connected 
         {
-            std::cout << "server: user " << newClient.userName << " requested the list from " << newClient.size()<< " users. " << std::endl;
+            std::cout << "server: user " << newClient.userName << " requested the list from " << clients_entering.size()<< " users. " << std::endl;
             chat::Payload *messageSend = new chat::Payload();//String with clients information
             std::string listFromClients = "";
             
-            for (auto item = newClient.begin(); item != newClient.end(); ++item)
+            for (auto item = clients_entering.begin(); item != clients_entering.end(); ++item)
             {
-                listFromClients = listFromClients + "Id: " + std::toString(item->second->socketFd) + " Username: " + (item->first) + " Ip: " + (item->second->ipAddr) + " Status: " + (item->second->status) + "\n";
+                listFromClients = listFromClients + "Id: " + std::to_string(item->second->socketFd) + " Username: " + (item->first) + " Ip: " + (item->second->ipAddr) + " Status: " + (item->second->status) + "\n";
             }
 
             // Information sent to clients
@@ -135,16 +135,16 @@ void *ThreadWork(void *parameters)
             strcpy(buffer, messageSerialized.c_str());
             send(socketFd, buffer, messageSerialized.size() + 1, 0);
         }
-        else if (messageReceived.flag() == chat::PayloadFlagUserInformation) // Information from a client
+        else if (messageReceived.flag() == chat::Payload_PayloadFlag_user_info) // Information from a client
         {
-            if (newClient.count(messageReceived.extra()) > 0) // See if client exists
+            if (clients_entering.count(messageReceived.extra()) > 0) // See if client exists
             {
                 std::cout << "server: the user " << newClient.userName<< " has requested information from " << messageReceived.extra()<< std::endl; // server Log
 
                 // Field with client information
                 chat::Payload *messageSend = new chat::Payload();
-                struct ChatClient *reqClient = newClient[messageReceived.extra()];
-                std::string mssToSend = "Id: " + std::toString(reqClient->socketFd) + " Username: " + (reqClient->userName) + " Ip: " + (reqClient->ipAddr) + " Status: " + (reqClient->status) + "\n";
+                struct ChatClient *reqClient = clients_entering[messageReceived.extra()];
+                std::string mssToSend = "Id: " + std::to_string(reqClient->socketFd) + " Username: " + (reqClient->userName) + " Ip: " + (reqClient->ipAddr) + " Status: " + (reqClient->status) + "\n";
 
                 messageSend->set_sender("Server");
                 messageSend->set_message(mssToSend);
@@ -177,7 +177,7 @@ void *ThreadWork(void *parameters)
             strcpy(buffer, messageSerialized.c_str());
             send(socketFd, buffer, messageSerialized.size() + 1, 0);
         }
-        else if (messageReceived.flag() == chat::PayloadFlagGeneral) // General Message
+        else if (messageReceived.flag() == chat::Payload_PayloadFlag_general_chat) // General Message
         {
             std::cout << "server: user " << newClient.userName<< " is trying to send a general chat:\n"<< messageReceived.message() << std::endl; // Log server            
             // Say if the message was delivered successfully
@@ -197,7 +197,7 @@ void *ThreadWork(void *parameters)
             genMessage->set_flag(chat::Payload_PayloadFlag_general_chat);
             genMessage->SerializeToString(&messageSerialized);
             strcpy(buffer, messageSerialized.c_str());
-            for (auto item = newClient.begin(); item != newClient.end(); ++item)
+            for (auto item = clients_entering.begin(); item != clients_entering.end(); ++item)
             {
                 if (item->first != newClient.userName)
                 {
@@ -205,9 +205,9 @@ void *ThreadWork(void *parameters)
                 }
             }
         }
-        else if (messageReceived.flag() == chat::PayloadFlagPrivateChat)// DM for an specific user
+        else if (messageReceived.flag() == chat::Payload_PayloadFlag_private_chat)// DM for an specific user
         {
-            if (newClient.count(messageReceived.extra()) < 1)// check if receiver exists
+            if (clients_entering.count(messageReceived.extra()) < 1)// check if receiver exists
             {
                 std::cout << "server: user " << messageReceived.extra() << " is not connected" << std::endl;
                 errorMess(socketFd, "User is not connected");
@@ -228,9 +228,9 @@ void *ThreadWork(void *parameters)
             privMessage->set_sender(newClient.userName);
             privMessage->set_message("Private message from "+messageReceived.sender()+": "+messageReceived.message()+"\n");
             privMessage->set_code(200);
-            privMessage->set_flag(chat::PayloadFlagPrivateChat);
+            privMessage->set_flag(chat::Payload_PayloadFlag_private_chat);
             privMessage->SerializeToString(&messageSerialized);
-            int destSocket = newClient[messageReceived.extra()]->socketFd;
+            int destSocket = clients_entering[messageReceived.extra()]->socketFd;
             strcpy(buffer, messageSerialized.c_str());
             send(destSocket, buffer, messageSerialized.size() + 1, 0);
         }
@@ -241,12 +241,12 @@ void *ThreadWork(void *parameters)
         }
         // Users connected:
         printf("\n");
-        std::cout << std::endl << "Users connected: " << newClient.size() <<std::endl;
+        std::cout << std::endl << "Users connected: " << clients_entering.size() <<std::endl;
         printf("\n");
     }
 
     //If the client gets disconnected then its deleted from the list and also the socket
-    newClient.erase(newClient.userName);
+    clients_entering.erase(newClient.userName);
     close(socketFd);
     std::string userUser = newClient.userName;
     if (userUser.empty())
