@@ -32,13 +32,14 @@ Proposito: clientes que se unen al servidor, con opciones de interacciones entre
 #include <pthread.h>
 #include "payload.pb.h"
 
+#define BUFFER_SZ 4096
 
-int connected, waitingForServerResponse, waitingForInput;
-std::string statusClient[3] = {"ACTIVO", "OCUPADO", "INACTIVO"};
+int online, serverResponse, inputMessage;
+std::string statusClient[] = {"ACTIVE", "BUSY", "INACTIVE"};
 
 
-// get sockaddr
-void *get_in_addr(struct sockaddr *sa)
+// get sockaddr 
+void *get_server_address(struct sockaddr *sa)
 {
 	if (sa->sa_family == AF_INET)
 	{
@@ -54,11 +55,11 @@ void *listenToMessages(void *args)
 	while (1)
 	{
 		// Estructura del mensaje
-		char bufferMsg[8192];
+		char bufferMsg[BUFFER_SZ];
 		int *sockmsg = (int *)args;
 		chat::Payload serverMsg;
 
-		int bytesReceived = recv(*sockmsg, bufferMsg, 8192, 0);
+		int bytesReceived = recv(*sockmsg, bufferMsg, BUFFER_SZ, 0);
 
 		serverMsg.ParseFromString(bufferMsg);
 
@@ -85,26 +86,24 @@ void *listenToMessages(void *args)
 			break;
 		}
 
-		waitingForServerResponse = 0;
+		serverResponse = 0;
 
-		if (connected == 0)
+		if (online == 0)
 		{
 			pthread_exit(0);
 		}
 	}
 }
-
-// Menu de opciones
-void print_menu(char *usrname)
+void print_menu(char *nameCLient)
 {
 	printf("|--------------------------------------------------------| \n");
-	printf("Bienvenido al lobby, %s. \n", usrname);
-	printf("1. Obtener lista de usuarios conectados. \n");
-	printf("2. Desplegar informacion de un usuario. \n");
-	printf("3. Cambiar status. \n");
-	printf("4. Enviar un mensaje a todos los usuarios. \n");
-	printf("5. Enviar mensaje directo. \n");
-	printf("6. Salir. \n");
+	printf("Welcome to the Chatroom, %s! \n\n", nameCLient);
+	printf("1. Check the list of the users online. \n");
+	printf("2. Information specific of a user \n");
+	printf("3. Change Status.  \n");
+	printf("4. Global message in the entire Chatroom. \n");
+	printf("5. Send private message to one user. \n");
+	printf("6. Exit. \n");
 	printf("|--------------------------------------------------------| \n");
 }
 
@@ -131,14 +130,14 @@ int main(int argc, char *argv[])
 {
 	// Estructura de la coneccion
 	int sockfd, numbytes;
-	char buf[8192];
+	char buf[BUFFER_SZ];
 	struct addrinfo hints, *servinfo, *p;
 	int rv;
 	char s[INET6_ADDRSTRLEN];
 
 	if (argc != 4)
 	{
-		fprintf(stderr, "Forma de uso: client <username> <server_ip> <server_port>\n");
+		fprintf(stderr, "Use of Registration: client <username> <server_ip> <server_port>\n\n Please, try again... \n");
 		exit(1);
 	}
 
@@ -179,14 +178,14 @@ int main(int argc, char *argv[])
 	}
 
 	//Completar la coneccion
-	inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
+	inet_ntop(p->ai_family, get_server_address((struct sockaddr *)p->ai_addr),
 			  s, sizeof s);
 	printf("Conectado con %s\n", s);
 	freeaddrinfo(servinfo);
 
 
 	// Escribir el mensaje de registro
-	char buffer[8192];
+	char buffer[BUFFER_SZ];
 	std::string message_serialized;
 
 	chat::Payload *firstMessage = new chat::Payload;
@@ -201,7 +200,7 @@ int main(int argc, char *argv[])
 	send(sockfd, buffer, message_serialized.size() + 1, 0);
 
 	// Obtener response de servidor
-	recv(sockfd, buffer, 8192, 0);
+	recv(sockfd, buffer, BUFFER_SZ, 0);
 
 	chat::Payload serverMessage;
 	serverMessage.ParseFromString(buffer);
@@ -219,7 +218,7 @@ int main(int argc, char *argv[])
 			  << serverMessage.message()
 			  << std::endl;	
 
-	connected = 1;
+	online = 1;
 
 	// despachar thread que escucha mensajes del server
 	pthread_t thread_id;
@@ -234,7 +233,7 @@ int main(int argc, char *argv[])
 	while (true)
 	{
 		// Mantener un orden entre lo que se envia y se recibe
-		while (waitingForServerResponse == 1){}
+		while (serverResponse == 1){}
 
 		printf("\nEscoja la opcion que desea:\n");
 		client_opt = get_client_option();
@@ -254,7 +253,7 @@ int main(int argc, char *argv[])
 
 			strcpy(buffer, msgSerialized.c_str());
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);
-			waitingForServerResponse = 1;
+			serverResponse = 1;
 		}
 		// Informacion de un usuario en especifico
 		else if (client_opt == 2)
@@ -273,7 +272,7 @@ int main(int argc, char *argv[])
 
 			strcpy(buffer, msgSerialized.c_str());
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);
-			waitingForServerResponse = 1;
+			serverResponse = 1;
 		}
 		// Cambiar estatus
 		else if(client_opt == 3){
@@ -302,12 +301,12 @@ int main(int argc, char *argv[])
 
 			strcpy(buffer, msgSerialized.c_str());
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);
-			waitingForServerResponse = 1;
+			serverResponse = 1;
 		}
 		// Enviar mensaje general
 		else if (client_opt == 4)
 		{
-			waitingForInput = 1;
+			inputMessage = 1;
 			printf("Ingrese un mensaje a enviar: \n");
 			std::cin.ignore();
 			std::string msg;
@@ -324,8 +323,8 @@ int main(int argc, char *argv[])
 
 			strcpy(buffer, msgSerialized.c_str());
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);
-			waitingForServerResponse = 0;
-			waitingForInput = 0;
+			serverResponse = 0;
+			inputMessage = 0;
 		}
 
 		// Enviar Mensaje privado
@@ -351,7 +350,7 @@ int main(int argc, char *argv[])
 
 			strcpy(buffer, msgSerialized.c_str());
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);
-			waitingForServerResponse = 0;
+			serverResponse = 0;
 		}
 		
 		else if (client_opt == 6)
@@ -379,7 +378,7 @@ int main(int argc, char *argv[])
 
 	// cerrar conexion
 	pthread_cancel(thread_id);
-	connected = 0;
+	online = 0;
 	close(sockfd);
 
 	return 0;

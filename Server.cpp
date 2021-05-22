@@ -35,7 +35,7 @@ para los clientes, incluyendo sincronizacion de mensajes y registro de usuarios
 #define BUFFER_SZ 4096
 
 // The client contains the sockets, status, userName, ip_address
-struct clientMessage
+struct ChatClient
 {
     int socketFd;
     std::string userName;
@@ -46,7 +46,7 @@ struct clientMessage
 
 
 // All new clients
-std::unordered_map<std::string, clientMessage *> newClient;
+std::unordered_map<std::string, ChatClient *> newClient;
 
 //Check Errors for network 
 void errorMess(int socketFd, std::string messageError)
@@ -68,8 +68,8 @@ void errorMess(int socketFd, std::string messageError)
 void *ThreadWork(void *parameters)
 {
     // New users at our server
-    struct clientMessage newClient;
-    struct clientMessage *clientParameters = (struct clientMessage *)parameters;
+    struct ChatClient newClient;
+    struct ChatClient *clientParameters = (struct ChatClient *)parameters;
     int socketFd = clientParameters->socketFd;
     char buffer[BUFFER_SZ];
     std::string messageSerialized;
@@ -114,7 +114,7 @@ void *ThreadWork(void *parameters)
             newClient.status = "active";
             strcpy(newClient.ipAddr, clientParameters->ipAddr);
             newClient[newClient.userName] = &newClient;
-        
+        }
         else if (messageReceived.flag() == chat::Payload_PayloadFlag_user_list) //List of all clientes connected 
         {
             std::cout << "server: user " << newClient.userName << " requested the list from " << newClient.size()<< " users. " << std::endl;
@@ -143,7 +143,7 @@ void *ThreadWork(void *parameters)
 
                 // Field with client information
                 chat::Payload *messageSend = new chat::Payload();
-                struct clientMessage *reqClient = newClient[messageReceived.extra()];
+                struct ChatClient *reqClient = newClient[messageReceived.extra()];
                 std::string mssToSend = "Id: " + std::toString(reqClient->socketFd) + " Username: " + (reqClient->userName) + " Ip: " + (reqClient->ipAddr) + " Status: " + (reqClient->status) + "\n";
 
                 messageSend->set_sender("Server");
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
         }
 
         // New Client
-        struct clientMessage newClient;
+        struct ChatClient newClient;
         newClient.socketFd = connectionNew_F;
         inet_ntop(AF_INET, &(connectionNow.sin_addr), newClient.ipAddr, INET_ADDRSTRLEN);
         // Thread for new client
