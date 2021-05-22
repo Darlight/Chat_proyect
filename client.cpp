@@ -35,7 +35,36 @@ Proposito: clientes que se unen al servidor, con opciones de interacciones entre
 int online, serverResponse, inputMessage;
 std::string statusClient[] = {"ACTIVE", "BUSY", "INACTIVE"};
 
+void print_menu(char *nameCLient)
+{
+	std::cout << "\n\n" << std::endl;
+	std::cout << "Welcome to Chatroom, " << nameCLient << "! \n" << std::endl;
+	std::cout << "1. List of users online. \n" << std::endl;
+	std::cout << "2. Specific information from an user \n" << std::endl;
+	std::cout << "3. Change Status\n" << std::endl;
+	std::cout << "4. Global message\n" << std::endl;
+	std::cout << "5. Private message to an user\n" << std::endl;
+	std::cout << "6. Exit. \n" << std::endl;
+	std::cout << "\n\n" << std::endl;
+}
 
+
+int get_client_action()
+{
+	// Client options
+	int client_opt;
+	std::cin >> client_opt;
+
+	while (std::cin.fail())
+	{
+		std::cout << "Select a valid option: \n" << std::endl;
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		std::cin >> client_opt;
+	}
+
+	return client_opt;
+}
 // get sockaddr 
 void *get_server_address(struct sockaddr *sa)
 {
@@ -48,7 +77,7 @@ void *get_server_address(struct sockaddr *sa)
 }
 
 // listen to server
-void *listenToMessages(void *args)
+void *checkWithServer(void *args)
 {
 	while (1)
 	{
@@ -89,35 +118,14 @@ void *listenToMessages(void *args)
 		}
 	}
 }
-void print_menu(char *nameCLient)
-{
-	printf("\n");
-	printf("Welcome to Chatroom, %s! \n\n", nameCLient);
-	printf("1. List of users online. \n");
-	printf("2. Specific information from an user \n");
-	printf("3. Change Status\n");
-	printf("4. Global message\n");
-	printf("5. Private message to an user\n");
-	printf("6. Exit. \n");
-	printf("\n");
-}
 
-int get_client_option()
-{
-	// Client options
-	int client_opt;
-	std::cin >> client_opt;
 
-	while (std::cin.fail())
-	{
-		std::cout << "Select a valid option: " << std::endl;
-		std::cin.clear();
-		std::cin.ignore(256, '\n');
-		std::cin >> client_opt;
-	}
 
-	return client_opt;
-}
+
+
+
+
+
 int main(int argc, char *argv[])
 {
 	// Connection Structure
@@ -175,17 +183,17 @@ int main(int argc, char *argv[])
 	freeaddrinfo(servinfo);
 
 
-	// REgustration Message
+	// Registration Message
 	char buffer[BUFFER_SZ];
 	std::string message_serialized;
 
-	chat::Payload *firstMessage = new chat::Payload;
+	chat::Payload *checkConnection = new chat::Payload;
 
-	firstMessage->set_sender(argv[1]);
-	firstMessage->set_flag(chat::Payload_PayloadFlag_register_);
-	firstMessage->set_ip(s);
+	checkConnection->set_sender(argv[1]);
+	checkConnection->set_flag(chat::Payload_PayloadFlag_register_);
+	checkConnection->set_ip(s);
 
-	firstMessage->SerializeToString(&message_serialized);
+	checkConnection->SerializeToString(&message_serialized);
 
 	strcpy(buffer, message_serialized.c_str());
 	send(sockfd, buffer, message_serialized.size() + 1, 0);
@@ -213,7 +221,7 @@ int main(int argc, char *argv[])
 	pthread_t thread_id;
 	pthread_attr_t attrs;
 	pthread_attr_init(&attrs);
-	pthread_create(&thread_id, &attrs, listenToMessages, (void *)&sockfd);
+	pthread_create(&thread_id, &attrs, checkWithServer, (void *)&sockfd);
 
 	print_menu(argv[1]);
 	int client_opt;
@@ -222,7 +230,7 @@ int main(int argc, char *argv[])
 		while (serverResponse == 1){}
 
 		printf("\nChoose an option:\n");
-		client_opt = get_client_option();
+		client_opt = get_client_action();
 
 		std::string msgSerialized;
 		int bytesReceived, bytesSent;
@@ -248,13 +256,13 @@ int main(int argc, char *argv[])
 			printf("Write the user name: \n");
 			std::cin >> user_name;
 
-			chat::Payload *userInf = new chat::Payload();
-			userInf->set_sender(argv[1]);
-			userInf->set_flag(chat::Payload_PayloadFlag_user_info);
-			userInf->set_extra(user_name);
-			userInf->set_ip(s);
+			chat::Payload *clientInfo = new chat::Payload();
+			clientInfo->set_sender(argv[1]);
+			clientInfo->set_flag(chat::Payload_PayloadFlag_user_info);
+			clientInfo->set_extra(user_name);
+			clientInfo->set_ip(s);
 
-			userInf->SerializeToString(&msgSerialized);
+			clientInfo->SerializeToString(&msgSerialized);
 
 			strcpy(buffer, msgSerialized.c_str());
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);
@@ -277,13 +285,13 @@ int main(int argc, char *argv[])
 				printf("Not Valid.\n");
 				continue;
 			}
-			chat::Payload *userInf = new chat::Payload();
-			userInf->set_sender(argv[1]);
-			userInf->set_flag(chat::Payload_PayloadFlag_update_status);
-			userInf->set_extra(newStatus);
-			userInf->set_ip(s);
+			chat::Payload *clientInfo = new chat::Payload();
+			clientInfo->set_sender(argv[1]);
+			clientInfo->set_flag(chat::Payload_PayloadFlag_update_status);
+			clientInfo->set_extra(newStatus);
+			clientInfo->set_ip(s);
 
-			userInf->SerializeToString(&msgSerialized);
+			clientInfo->SerializeToString(&msgSerialized);
 
 			strcpy(buffer, msgSerialized.c_str());
 			bytesSent = send(sockfd, buffer, msgSerialized.size() + 1, 0);

@@ -65,7 +65,7 @@ void errorMess(int socketFd, std::string messageError)
 }
 
 /// Multithreading, each thread will work for a client
-void *ThreadWork(void *parameters)
+void *chatRoom_Threading(void *parameters)
 {
     // New users at our server
     struct ChatClient newClient;
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
         pthread_t thread_id;
         pthread_attr_t attrs;
         pthread_attr_init(&attrs);
-        pthread_create(&thread_id, &attrs, ThreadWork, (void *)&newClient);
+        pthread_create(&thread_id, &attrs, chatRoom_Threading, (void *)&newClient);
     }
 
     google::protobuf::ShutdownProtobufLibrary();
