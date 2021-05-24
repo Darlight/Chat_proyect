@@ -30,7 +30,7 @@ Proposito: clientes que se unen al servidor, con opciones de interacciones entre
 #include <pthread.h>
 #include "payload.pb.h"
 
-#define BUFFER_SZ 4096
+#define BUFFER_SZ 8192
 
 int online, serverResponse, inputMessage;
 std::string statusClient[] = {"ACTIVE", "BUSY", "INACTIVE"};

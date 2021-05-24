@@ -32,7 +32,7 @@ para los clientes, incluyendo sincronizacion de mensajes y registro de usuarios
 #include "payload.pb.h"
 
 #define MAX_newClient 100
-#define BUFFER_SZ 4096
+#define BUFFER_SZ 8192
 
 // The client contains the sockets, status, userName, ip_address
 struct ChatClient
